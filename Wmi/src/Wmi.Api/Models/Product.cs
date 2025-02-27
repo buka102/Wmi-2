@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using Wmi.Api.Data;
 
 namespace Wmi.Api.Models
 {
@@ -24,12 +25,15 @@ namespace Wmi.Api.Models
     
     public class ProductValidator : AbstractValidator<Product> 
     {
-        public ProductValidator() 
+        public ProductValidator(IDataRepository dataRepository) 
         {
             RuleFor(x => x.SKU).NotNull().Length(1,50);
             RuleFor(x => x.Title).Length(1, 200);
             RuleFor(x => x.Description).Length(0,10000);
             RuleFor(x => x.BuyerId).NotNull().Length(32);
+            RuleFor(x => x.BuyerId)
+                .MustAsync(async (buyerId, _) => await dataRepository.ExistsBuyerAsync(buyerId))
+                .WithMessage("buyerId is invalid");
         }
     }
 }

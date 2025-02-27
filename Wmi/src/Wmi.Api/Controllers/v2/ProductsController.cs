@@ -3,17 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Wmi.Api.Models;
 using Wmi.Api.Models.Dto;
 using Wmi.Api.Services;
+using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 [ApiController]
 [Route("api/v2/[controller]")]
 // [Authorize]
 public class ProductsController(IProductService productService) : ControllerBase
 {
-
-    public class NewProductPayload
-    {
-        
-    }
 
     [HttpPost]
     [ProducesResponseType(typeof(Result<Product>), 201)]

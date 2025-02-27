@@ -1,18 +1,17 @@
 using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 
 namespace Wmi.Api.Models.Dto;
-
+[AutoMap(typeof(Product), ReverseMap = true)]
 public class CreateProductDto
 {
-    [Required] public string Sku => null!;
+    public required string Sku { get; init; }
+    
+    public required string Title { get; init; }
 
-    [Required]
-    public string Title => null!;
+    public string? Description { get; init; }
+    
+    public required string BuyerId { get; init; }
 
-    public string Description => null!;
-
-    [Required]
-    public string BuyerId => null!;
-
-    public bool Active { get; }
+    public bool Active { get; init; }
 }
