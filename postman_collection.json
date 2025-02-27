@@ -1,0 +1,330 @@
+{
+	"info": {
+		"_postman_id": "4ce53a0a-0f96-4f8a-a2dc-6622d1654353",
+		"name": "WMI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39099020"
+	},
+	"item": [
+		{
+			"name": "Buyers",
+			"item": [
+				{
+					"name": "Add Buyer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Save to variable\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"latest_buyer_id\", jsonData.value.id);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Bob Smith\",\n    \"email\":\"bsmith@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server_host}}/api/Buyers",
+							"host": [
+								"{{server_host}}"
+							],
+							"path": [
+								"api",
+								"Buyers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Buyers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server_host}}/api/Buyers?page=1&pageSize=10",
+							"host": [
+								"{{server_host}}"
+							],
+							"path": [
+								"api",
+								"Buyers"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Add Product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Save to variable\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"latest_sku\", jsonData.value.sku);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"sku\":\"s1236\",\n    \"title\":\"title of 123\",\n    \"description\":\"desc1\",\n    \"buyerId\":\"{{latest_buyer_id}}\",\n    \"active\":true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server_host}}/api/v2/Products",
+							"host": [
+								"{{server_host}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"Products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server_host}}/api/v2/Products",
+							"host": [
+								"{{server_host}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"Products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Products Expanded with Buyer object",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server_host}}/api/v2/Products?expand=true",
+							"host": [
+								"{{server_host}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"Products"
+							],
+							"query": [
+								{
+									"key": "expand",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Products with filter",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{server_host}}/api/v2/Products?titleContains=123",
+							"host": [
+								"{{server_host}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"Products"
+							],
+							"query": [
+								{
+									"key": "titleContains",
+									"value": "123"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Product Active Property",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "false",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server_host}}/api/v2/Products/{{latest_sku}}/active",
+							"host": [
+								"{{server_host}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"Products",
+								"{{latest_sku}}",
+								"active"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Product Buyer",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "\"VDJMlQwq90WK97NhkM0iFg\"",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server_host}}/api/v2/Products/{{latest_sku}}/buyer",
+							"host": [
+								"{{server_host}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"Products",
+								"{{latest_sku}}",
+								"buyer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\":\"updated title of 123\",\n    \"description\":\"desc1\",\n    \"buyerId\":\"1NbokJPF3UKAfYZqoWo5eg\",\n    \"active\":true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{server_host}}/api/v2/Products/{{latest_sku}}",
+							"host": [
+								"{{server_host}}"
+							],
+							"path": [
+								"api",
+								"v2",
+								"Products",
+								"{{latest_sku}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "server_host",
+			"value": "http://localhost:8081",
+			"type": "string"
+		},
+		{
+			"key": "latest_sku",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "latest_buyer_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

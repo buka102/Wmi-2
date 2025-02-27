@@ -21,25 +21,29 @@ public class ProductsController(IProductService productService) : ControllerBase
 
         if (newProductResult.Success)
         {
-            return Created($"api/v2/Products/{newProductResult.Value!.SKU}", newProductResult.Value);
+            return Created($"api/v2/Products/{newProductResult.Value!.SKU}", newProductResult);
         }
 
         return BadRequest(newProductResult);
     }
 
-    [HttpGet("{id}")]
-    [ProducesResponseType(typeof(Product), 200)]
-    [ProducesResponseType(404)]
-    public async Task<IActionResult> GetProduct(int id)
+    [HttpPut("{sku:length(1,50)}")]
+    [ProducesResponseType(typeof(Result<Product>), 201)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(403)]
+    public async Task<IActionResult> UpdateProductAsync([FromRoute]string sku, [FromBody] UpdateProductDto updateProductDto)
     {
-        /*
-        var product = await _productService.GetProductByIdAsync(id);
-        return product is not null ? Ok(product) : NotFound();
-        */
-        return Ok();
+        var updatedProductResult = await productService.UpdateProductAsync(sku, updateProductDto);
+
+        if (updatedProductResult.Success)
+        {
+            return Ok(updatedProductResult);
+        }
+
+        return BadRequest(updatedProductResult);
     }
 
-    [HttpPatch("{sku}/active")]
+    [HttpPatch("{sku:length(1,50)}/active")]
     [ProducesResponseType(typeof(Product), 200)]
     [ProducesResponseType(204)]
     [ProducesResponseType(404)]
@@ -54,7 +58,7 @@ public class ProductsController(IProductService productService) : ControllerBase
         return BadRequest(updatedProductResult);
     }
 
-    [HttpPatch("{sku}/buyer")]
+    [HttpPatch("{sku:length(1,50)}/buyer")]
     [ProducesResponseType(typeof(Product), 200)]
     [ProducesResponseType(204)]
     [ProducesResponseType(404)]
@@ -71,14 +75,17 @@ public class ProductsController(IProductService productService) : ControllerBase
 
     [HttpGet("")]
     [ProducesResponseType(typeof(Result<List<Product>>), 200)]
-    public async Task<IActionResult> GetAllProducts([FromQuery] bool? expand, [FromQuery] int? page, [FromQuery] int? pageSize)
+    public async Task<IActionResult> GetAllProducts([FromQuery] bool? expand, [FromQuery] string? titleContains,
+        [FromQuery] string? titleStartsWith, [FromQuery] int? page, [FromQuery] int? pageSize)
     {
-        var productListResult = await productService.GetProductsAsync(page:page??1, pageSize:pageSize??10, includeBuyer:expand ?? false);
+        var productListResult = await productService.GetProductsAsync(titleContains, titleStartsWith, page: page ?? 1,
+            pageSize: pageSize ?? 10, includeBuyer: expand ?? false);
 
         if (productListResult.Success)
         {
             return Ok(productListResult);
         }
+
         return BadRequest(productListResult);
     }
 }

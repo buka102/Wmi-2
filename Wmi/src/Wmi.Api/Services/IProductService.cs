@@ -9,7 +9,7 @@ public interface IProductService
         int page = 1, int pageSize = 10, bool includeBuyer = false);
 
     Task<Result<Product>> CreateProductAsync(CreateProductDto productDto);
-    
+    Task<Result<Product>> UpdateProductAsync(string sku, UpdateProductDto productDto);
     Task<Result<Product>> ChangeActiveStatusAsync(string sku, bool active);
     Task<Result<Product>> ChangeBuyerAsync(string sku, string newBuyerId);
 }
