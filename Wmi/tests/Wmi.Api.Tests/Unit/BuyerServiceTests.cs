@@ -71,6 +71,7 @@ public class BuyerServiceTests
     {
         // Arrange
         var buyerDto = new CreateBuyerDto { Name = "", Email = "invalidemail" };
+        var buyer = new Buyer() { Id = "1", Name = "", Email = "invalidemail" };
 
         _dataRepositoryMock.Setup(repo => repo.ExistsBuyerByEmailAsync(buyerDto.Email))
             .ReturnsAsync(false);
@@ -81,6 +82,10 @@ public class BuyerServiceTests
                 new ValidationFailure("Email", "Invalid email format"),
                 new ValidationFailure("Name", "Name is required")
             }));
+        
+        _mapperMock
+            .Setup(m => m.Map<Buyer>(buyerDto))
+            .Returns(buyer);
 
         // Act
         var result = await _buyerService.CreateBuyerAsync(buyerDto);
@@ -110,13 +115,18 @@ public class BuyerServiceTests
     {
         // Arrange
         var updateBuyerDto = new UpdateBuyerDto { Name = "", Email = "invalidemail" };
-
+        var buyer = new Buyer() { Id = "1", Name = "", Email = "invalidemail" };
+        
         _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<Buyer>(), default))
             .ReturnsAsync(new ValidationResult(new List<ValidationFailure>
             {
                 new ValidationFailure("Email", "Invalid email format"),
                 new ValidationFailure("Name", "Name is required")
             }));
+        
+        _mapperMock
+            .Setup(m => m.Map<Buyer>(updateBuyerDto))
+            .Returns(buyer);
 
         // Act
         var result = await _buyerService.UpdateBuyerAsync("1", updateBuyerDto);
