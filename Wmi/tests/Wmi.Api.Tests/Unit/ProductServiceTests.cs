@@ -79,12 +79,20 @@ public class ProductServiceTests
     public async Task CreateProductAsync_ShouldFail_WhenBuyerDoesNotExist()
     {
         // Arrange
-        var productDto = new CreateProductDto { Sku ="123", BuyerId = "B1", Title = "title"};
-
+        var buyerId = Guid.NewGuid().ToString("N").ToLower();
+        var productDto = new CreateProductDto { Sku ="123", BuyerId = buyerId, Title = "title"};
+        var product = new Product() { Sku = "123", BuyerId = buyerId, Title = "title" };
+        
         _dataRepositoryMock.Setup(repo => repo.ExistsProductBySkuAsync(productDto.Sku))
             .ReturnsAsync(false);
-        _buyerServiceMock.Setup(s => s.ExistsBuyerAsync(productDto.BuyerId))
-            .ReturnsAsync(Result<bool>.Fail("Buyer not found"));
+        _mapperMock
+            .Setup(m => m.Map<Product>(productDto))
+            .Returns(product);
+        _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<Product>(), default))
+            .ReturnsAsync(new ValidationResult(new List<ValidationFailure>
+            {
+                new ValidationFailure("BuyerId", "buyerId is invalid")
+            }));
 
         // Act
         var result = await _productService.CreateProductAsync(productDto);
@@ -152,17 +160,118 @@ public class ProductServiceTests
         _notifyMock.Verify(n => n.Notify("NewBuyer", It.Is<string>(msg => msg.Contains("assigned"))), Times.Once);
     }
     
-    public async Task ChangeBuyerAsync_ShouldFail_WhenSkuNotFound()
+    [Fact]
+    public async Task UpdateProductAsync_ShouldReturnFail_WhenProductNotFound()
     {
-        // Arrange
-        _dataRepositoryMock.Setup(repo => repo.GetProductBySkuAsync("999"))
+        _dataRepositoryMock.Setup(repo => repo.GetProductBySkuAsync(It.IsAny<string>()))
             .ReturnsAsync((Product)null);
+        var updateProductDto = new UpdateProductDto()
+        {
+            Title = "title updated",
+            BuyerId = "B1"
+        };
+        
+        var result = await _productService.UpdateProductAsync("Sku123", updateProductDto);
 
+        Assert.False(result.Success);
+        Assert.Equal("Sku does not exists", result.Error);
+    }
+
+    [Fact]
+    public async Task UpdateProductAsync_ShouldReturnFail_WhenValidationFails()
+    {
+        // Arrange 
+        var existingProduct = new Product { Sku = "Sku123", Active = true, BuyerId = "B1", Title = "title"};
+        
+        var updateProductDto = new UpdateProductDto()
+        {
+            Title = "title updated",
+            BuyerId = "B1"
+        };
+        
+        _dataRepositoryMock.Setup(repo => repo.GetProductBySkuAsync("Sku123"))
+            .ReturnsAsync(existingProduct);
+        _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<Product>(), default))
+            .ReturnsAsync(new FluentValidation.Results.ValidationResult(new[] { new FluentValidation.Results.ValidationFailure("Field", "Validation error") }));
+        _mapperMock
+            .Setup(m => m.Map<Product>(updateProductDto))
+            .Returns(new Product()
+            {
+                Sku = Guid.NewGuid().ToString("N").ToLower(),
+                Title = updateProductDto.Title,
+                Active = updateProductDto.Active,
+                BuyerId = updateProductDto.BuyerId,
+                Description = updateProductDto.Description
+            });
+        
         // Act
-        var result = await _productService.ChangeBuyerAsync("999", "B2");
-
+        var result = await _productService.UpdateProductAsync("Sku123", updateProductDto);
+    
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Sku is out of range", result.Error);
+        Assert.Equal("Validation error", result.Error);
+    }
+
+    [Fact]
+    public async Task UpdateProductAsync_ShouldReturnFail_WhenUpdateFails()
+    {
+        // Arrange
+        var existingProduct = new Product { Sku = "Sku123", Active = true, BuyerId = "B1", Title = "title"};
+        var updateProductDto = new UpdateProductDto()
+        {
+            Title = "title updated",
+            BuyerId = "B1"
+        };
+        
+        _dataRepositoryMock.Setup(repo => repo.GetProductBySkuAsync("Sku123"))
+            .ReturnsAsync(existingProduct);
+        _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<Product>(), default))
+            .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+        _dataRepositoryMock.Setup(repo => repo.UpdateProductAsync(It.IsAny<Product>()))
+            .ReturnsAsync(false);
+        _mapperMock
+            .Setup(m => m.Map<Product>(updateProductDto))
+            .Returns(new Product()
+            {
+                Sku = Guid.NewGuid().ToString("N").ToLower(),
+                Title = updateProductDto.Title,
+                Active = updateProductDto.Active,
+                BuyerId = updateProductDto.BuyerId,
+                Description = updateProductDto.Description
+            });
+        // Act
+        var result = await _productService.UpdateProductAsync("Sku123", updateProductDto);
+        
+        // Assert
+        Assert.False(result.Success);
+        Assert.Equal("Product updated failed", result.Error);
+    }
+
+    [Fact]
+    public async Task UpdateProductAsync_ShouldReturnSuccess_WhenUpdateSucceeds()
+    {
+        // Arrange
+        var existingProduct = new Product { Sku = "Sku123", Active = true, BuyerId = "B1", Title = "title"};
+        var updateProductDto = new UpdateProductDto()
+        {
+            Title = "title updated",
+            BuyerId = "B1updated"
+        };
+        var updatedResult = new Product() { Sku = "Sku123", Active = true, BuyerId = "B1updated", Title = "title updated"};
+        _dataRepositoryMock.Setup(repo => repo.GetProductBySkuAsync("Sku123"))
+            .ReturnsAsync(existingProduct);
+        _validatorMock.Setup(v => v.ValidateAsync(It.IsAny<Product>(), default))
+            .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+        _dataRepositoryMock.Setup(repo => repo.UpdateProductAsync(It.IsAny<Product>()))
+            .ReturnsAsync(true);
+        _mapperMock.Setup(m => m.Map<Product>(It.IsAny<UpdateProductDto>()))
+            .Returns(updatedResult);
+        
+        
+        // Act
+        var result = await _productService.UpdateProductAsync("Sku123", updateProductDto);
+
+        // Assert
+        Assert.True(result.Success);
     }
 }
