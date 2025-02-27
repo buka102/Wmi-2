@@ -5,7 +5,7 @@ namespace Wmi.Api.Models
 {
     public class Product
     {
-        public required string SKU { get; set; }
+        public required string Sku { get; set; }
         
         public required string Title { get; init; }
 
@@ -23,7 +23,7 @@ namespace Wmi.Api.Models
     {
         public ProductValidator(IDataRepository dataRepository) 
         {
-            RuleFor(x => x.SKU).NotEmpty().WithMessage("SKU cannot be empty.")
+            RuleFor(x => x.Sku).NotEmpty().WithMessage("SKU cannot be empty.")
                 .Matches(@"^[a-zA-Z0-9_-]{1,50}$").WithMessage("SKU must contain only letters, numbers, hyphens, and underscores, and be 1 to 50 characters long.");
             RuleFor(x => x.Title).Length(1, 200);
             RuleFor(x => x.Description).Length(0,10000);

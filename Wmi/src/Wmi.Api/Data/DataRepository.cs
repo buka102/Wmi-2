@@ -100,8 +100,8 @@ public class DataRepository(IDbConnectionFactory connectionFactory, IConfigurati
         var product = await connection.QueryFirstOrDefaultAsync<Product>(
             @"SELECT p.sku, p.title, p.description, p.buyer_id AS BuyerId, p.active
               FROM products p
-              WHERE p.sku = @SKU",
-            new { SKU = sku });
+              WHERE p.sku = @Sku",
+            new { Sku = sku });
 
         return product;
     }
@@ -148,10 +148,10 @@ public class DataRepository(IDbConnectionFactory connectionFactory, IConfigurati
         
         var rowsAffected = await connection.ExecuteAsync(
             @"INSERT INTO products (sku, title, description, buyer_id, active)
-              VALUES (@SKU, @Title, @Description, @BuyerId, @Active)",
+              VALUES (@Sku, @Title, @Description, @BuyerId, @Active)",
             new
             {
-                product.SKU,
+                product.Sku,
                 product.Title,
                 product.Description,
                 product.BuyerId,
@@ -171,10 +171,10 @@ public class DataRepository(IDbConnectionFactory connectionFactory, IConfigurati
                   description = @Description,
                   buyer_id = @BuyerId,
                   active = @Active
-              WHERE sku = @SKU",
+              WHERE sku = @Sku",
             new
             {
-                draftProduct.SKU,
+                draftProduct.Sku,
                 draftProduct.Title,
                 draftProduct.Description,
                 draftProduct.BuyerId,

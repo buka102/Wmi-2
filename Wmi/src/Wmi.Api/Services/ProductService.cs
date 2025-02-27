@@ -32,7 +32,6 @@ public class ProductService(
 
     public async Task<Result<Product>> CreateProductAsync(CreateProductDto productDto)
     {
-
         var productExistsBySku = await dataRepository.ExistsProductBySkuAsync(productDto.Sku);
         if (productExistsBySku)
         {
@@ -60,7 +59,7 @@ public class ProductService(
             return Result<Product>.Fail("failed to create product");
         }
 
-        notify.Notify(draftProduct.BuyerId, $"new product (sku: '{draftProduct.SKU})' is created");
+        notify.Notify(draftProduct.BuyerId, $"new product (sku: '{draftProduct.Sku})' is created");
         return Result<Product>.Ok(draftProduct);
     }
 
@@ -77,7 +76,7 @@ public class ProductService(
         var previousProductBuyerId = string.Empty;
         
         var draftProduct = mapper.Map<Product>(productDto);
-        draftProduct.SKU = existingProductBySku.SKU;
+        draftProduct.Sku = existingProductBySku.Sku;
 
         var validationResult = await validator.ValidateAsync(draftProduct);
         if (!validationResult.IsValid)
@@ -104,13 +103,13 @@ public class ProductService(
 
         if (productAssignedBuyerChanged)
         {
-            NotifyProductChangedBuyer(draftProduct.SKU, previousProductBuyerId, draftProduct.BuyerId);
+            NotifyProductChangedBuyer(draftProduct.Sku, previousProductBuyerId, draftProduct.BuyerId);
         }
 
         if (productChangedToDeactivated)
         {
             //Here we notify only latest buyer (if buyer was changed, here we can provide previousProductBuyerId)
-            NotifyProductDeactivated(draftProduct.SKU, draftProduct.BuyerId);
+            NotifyProductDeactivated(draftProduct.Sku, draftProduct.BuyerId);
         }
         
         return Result<Product>.Ok(draftProduct);
@@ -131,7 +130,7 @@ public class ProductService(
             var updateProductResult = await dataRepository.UpdateProductAsync(productBySku);
             if (updateProductResult && !productBySku.Active)
             {
-                NotifyProductDeactivated(productBySku.SKU, productBySku.BuyerId);
+                NotifyProductDeactivated(productBySku.Sku, productBySku.BuyerId);
             }
         }
 
@@ -160,7 +159,7 @@ public class ProductService(
             var updateProductResult = await dataRepository.UpdateProductAsync(productBySku);
             if (updateProductResult)
             {
-                NotifyProductChangedBuyer(productBySku.SKU, previousBuyerId, newBuyerId);
+                NotifyProductChangedBuyer(productBySku.Sku, previousBuyerId, newBuyerId);
             }
         }
 

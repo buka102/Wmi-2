@@ -77,7 +77,7 @@ public class BuyerService(IDataRepository dataRepository, IValidator<Buyer> vali
         }
         
         var buyerInUse = await dataRepository.ExistsProductWithBuyerIdAsync(id);
-        if (!buyerInUse)
+        if (buyerInUse)
         {
             return Result<bool>.Fail("Buyer is in-use. Cannot be deleted");
         }
