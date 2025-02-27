@@ -1,6 +1,7 @@
 using FluentValidation;
 using Wmi.Api.Data;
 using Wmi.Api.Models;
+using Wmi.Api.Models.Dto;
 
 namespace Wmi.Api.Services;
 
@@ -12,10 +13,10 @@ public class BuyerService(IDataRepository dataRepository, IValidator<Buyer> vali
         return Result<List<Buyer>>.Ok(result.ToList());
     }
 
-    public async Task<Result<Buyer>> CreateBuyerAsync(string name, string email)
+    public async Task<Result<Buyer>> CreateBuyerAsync(CreateBuyerDto buyerDto)
     {
         
-        var buyerExistsByEmail = await dataRepository.ExistsBuyerByEmailAsync(email);
+        var buyerExistsByEmail = await dataRepository.ExistsBuyerByEmailAsync(buyerDto.Email);
         if (buyerExistsByEmail)
         {
             return Result<Buyer>.Fail("Email already exists");
@@ -26,8 +27,8 @@ public class BuyerService(IDataRepository dataRepository, IValidator<Buyer> vali
         var draftBuyer = new Buyer
         {
             Id = newId,
-            Name = name,
-            Email = email
+            Name = buyerDto.Name,
+            Email = buyerDto.Email,
         };
         
         var validationResult = await validator.ValidateAsync(draftBuyer);
@@ -36,7 +37,7 @@ public class BuyerService(IDataRepository dataRepository, IValidator<Buyer> vali
             return Result<Buyer>.Fail(string.Join(", ", validationResult.Errors.Select(x=>x.ErrorMessage)));
         }
         
-        var newBuyerSuccess = await dataRepository.InsertBuyerAsync(new(){Id = newId, Name = name, Email = email});
+        var newBuyerSuccess = await dataRepository.InsertBuyerAsync(draftBuyer);
         if (!newBuyerSuccess)
         {
             return Result<Buyer>.Fail("failed to create buyer");
@@ -51,8 +52,15 @@ public class BuyerService(IDataRepository dataRepository, IValidator<Buyer> vali
         return Result<bool>.Ok(buyerExists);
     }
 
-    public async Task<Result<Buyer>> UpdateBuyerAsync(Buyer draftBuyer)
+    public async Task<Result<Buyer>> UpdateBuyerAsync(string id, UpdateBuyerDto updateBuyerDto)
     {
+        var draftBuyer = new Buyer()
+        {
+            Id = id,
+            Name = updateBuyerDto.Name,
+            Email = updateBuyerDto.Email,
+        };
+        
         var validationResult = await validator.ValidateAsync(draftBuyer);
         if (!validationResult.IsValid)
         {

@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wmi.Api.Tests", "tests\Wmi.Api.Tests\Wmi.Api.Tests.csproj", "{225D82AD-D44D-46AA-84CC-C5AE67E79778}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wmi.Api", "src\Wmi.Api\Wmi.Api.csproj", "{8CC77899-F0E6-494C-81E0-F20C69F8B5D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{225D82AD-D44D-46AA-84CC-C5AE67E79778}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{225D82AD-D44D-46AA-84CC-C5AE67E79778}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{225D82AD-D44D-46AA-84CC-C5AE67E79778}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CC77899-F0E6-494C-81E0-F20C69F8B5D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CC77899-F0E6-494C-81E0-F20C69F8B5D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CC77899-F0E6-494C-81E0-F20C69F8B5D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CC77899-F0E6-494C-81E0-F20C69F8B5D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

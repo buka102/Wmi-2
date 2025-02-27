@@ -22,6 +22,10 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
 });
 
+
+// builder.Services.AddScoped<IValidator<Product>, ProductValidator>();
+// builder.Services.AddScoped<IValidator<Buyer>, BuyerValidator>();
+
 builder.Services.AddValidatorsFromAssemblyContaining<ProductValidator>();
 
 builder.Services.AddEndpointsApiExplorer();

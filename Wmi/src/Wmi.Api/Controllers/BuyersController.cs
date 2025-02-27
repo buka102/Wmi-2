@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Wmi.Api.Models;
+using Wmi.Api.Models.Dto;
 using Wmi.Api.Services;
 
 [ApiController]
@@ -8,20 +9,15 @@ using Wmi.Api.Services;
 // [Authorize]
 public class BuyersController(IBuyerService buyerService) : ControllerBase
 {
-    public class CreateBuyerRequest
-    {
 
-        [Required] public string Name { get; init; } = default!;
-        [Required] public string Email  { get; init; } = default!;
-    }
 
     [HttpPost]
     [ProducesResponseType(typeof(Result<Buyer>), 201)]
     [ProducesResponseType(400)]
     [ProducesResponseType(403)]
-    public async Task<IActionResult> CreateBuyerAsync([FromBody] CreateBuyerRequest buyer)
+    public async Task<IActionResult> CreateBuyerAsync([FromBody] CreateBuyerDto buyerDto)
     {
-        var newBuyerResult = await buyerService.CreateBuyerAsync(buyer.Name, buyer.Email);
+        var newBuyerResult = await buyerService.CreateBuyerAsync(buyerDto);
 
         if (newBuyerResult.Success)
         {

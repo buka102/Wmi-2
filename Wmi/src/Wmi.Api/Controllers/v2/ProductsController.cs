@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Wmi.Api.Models;
+using Wmi.Api.Models.Dto;
 using Wmi.Api.Services;
 
 [ApiController]
@@ -11,27 +12,16 @@ public class ProductsController(IProductService productService) : ControllerBase
 
     public class NewProductPayload
     {
-        [Required] public string Sku => null!;
-
-        [Required]
-        public string Title => null!;
-
-        public string Description => null!;
-
-        [Required]
-        public string BuyerId => null!;
-
-        public bool Active { get; }
+        
     }
 
     [HttpPost]
     [ProducesResponseType(typeof(Result<Product>), 201)]
     [ProducesResponseType(400)]
     [ProducesResponseType(403)]
-    public async Task<IActionResult> CreateProductAsync([FromBody] NewProductPayload product)
+    public async Task<IActionResult> CreateProductAsync([FromBody] CreateProductDto createProductDto)
     {
-        var newProductResult = await productService.CreateProductAsync(product.Sku, product.Title, product.Description,
-            product.BuyerId, product.Active);
+        var newProductResult = await productService.CreateProductAsync(createProductDto);
 
         if (newProductResult.Success)
         {
