@@ -36,10 +36,12 @@ docker-compose down -v
     dotnet run --project Wmi.Api/Wmi.Api.csproj
 ```
 Or 
-* with Docker (Postman collection will work as is)
+* with Docker: Run Api and Db (Postman collection will work as is)
 ```
     docker-compose up
 ```
+
+Web Api runs on port 8081
 
 **API Testing**
 
@@ -76,6 +78,5 @@ While these features are overkill for a small project, they showcase best practi
 * Expand unit and integration test coverage.
 * Add distributed tracing (e.g., OpenTelemetry) for better debugging.
 * Implement structured logging with correlation IDs.
-
 
 
