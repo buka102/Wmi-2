@@ -1,3 +1,4 @@
+using AutoMapper;
 using FluentValidation;
 using Wmi.Api.Data;
 using Wmi.Api.Models;
@@ -5,7 +6,7 @@ using Wmi.Api.Models.Dto;
 
 namespace Wmi.Api.Services;
 
-public class BuyerService(IDataRepository dataRepository, IValidator<Buyer> validator):IBuyerService
+public class BuyerService(IDataRepository dataRepository, IValidator<Buyer> validator, IMapper mapper):IBuyerService
 {
     public async Task<Result<List<Buyer>>> GetBuyersAsync(int page = 1, int pageSize = 10)
     {
@@ -24,12 +25,8 @@ public class BuyerService(IDataRepository dataRepository, IValidator<Buyer> vali
         
         var newId = Guid.NewGuid().ToString("N").ToLower();
 
-        var draftBuyer = new Buyer
-        {
-            Id = newId,
-            Name = buyerDto.Name,
-            Email = buyerDto.Email,
-        };
+        var draftBuyer = mapper.Map<Buyer>(buyerDto);
+        draftBuyer.Id = newId;
         
         var validationResult = await validator.ValidateAsync(draftBuyer);
         if (!validationResult.IsValid)
@@ -54,12 +51,8 @@ public class BuyerService(IDataRepository dataRepository, IValidator<Buyer> vali
 
     public async Task<Result<Buyer>> UpdateBuyerAsync(string id, UpdateBuyerDto updateBuyerDto)
     {
-        var draftBuyer = new Buyer()
-        {
-            Id = id,
-            Name = updateBuyerDto.Name,
-            Email = updateBuyerDto.Email,
-        };
+        var draftBuyer = mapper.Map<Buyer>(updateBuyerDto);
+        draftBuyer.Id = id;
         
         var validationResult = await validator.ValidateAsync(draftBuyer);
         if (!validationResult.IsValid)

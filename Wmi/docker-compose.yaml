@@ -1,0 +1,54 @@
+version: '3.9'
+services:
+  api:
+    build: 
+      context: ./src   # path to parent of Api project with Dockerfile
+      dockerfile: ./Wmi.Api/Dockerfile
+    ports:
+      - "8081:8080"
+    networks:
+      internal:
+        ipv4_address: 11.0.1.2
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionString=Host=11.0.1.1:5432;Username=sql_non_sa;Password=VeryStrongPa+w0rd;Database=ProductCatalog
+    depends_on:
+      - db
+
+  db:
+    image: postgres:17
+    container_name: postgres-master
+    user: "postgres"
+    environment:
+      # Primary administrative user/DB settings:
+      POSTGRES_USER: masteruser
+      POSTGRES_PASSWORD: masterpassword@0
+      POSTGRES_DB: masterdb
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - postgres_master_data:/var/lib/postgresql/data
+      # Mount the initialization SQL script into the folder that Postgres uses to run startup scripts.
+      - ./db/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      internal:
+        ipv4_address: 11.0.1.1
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "PGPASSWORD=masterpassword@0 pg_isready -U masteruser -d masterdb -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+networks:
+  internal:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "11.0.0.0/16"
+
+volumes:
+  postgres_master_data:

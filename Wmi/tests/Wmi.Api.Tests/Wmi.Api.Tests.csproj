@@ -20,4 +20,8 @@
         <Using Include="Xunit"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\Wmi.Api\Wmi.Api.csproj" />
+    </ItemGroup>
+
 </Project>
