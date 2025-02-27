@@ -21,7 +21,7 @@ public class ProductsController(IProductService productService) : ControllerBase
 
         if (newProductResult.Success)
         {
-            return Created($"api/v2/Products/{newProductResult.Value!.SKU}", newProductResult);
+            return Created($"api/v2/Products/{newProductResult.Value!.Sku}", newProductResult.Value);
         }
 
         return BadRequest(newProductResult);
