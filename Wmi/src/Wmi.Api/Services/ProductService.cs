@@ -1,6 +1,7 @@
 using FluentValidation;
 using Wmi.Api.Data;
 using Wmi.Api.Models;
+using Wmi.Api.Models.Dto;
 
 namespace Wmi.Api.Services;
 
@@ -23,17 +24,16 @@ public class ProductService(IDataRepository dataRepository, IBuyerService buyerS
         return Result<List<Product>>.Ok(products.ToList());
     }
 
-    public async Task<Result<Product>> CreateProductAsync(string sku, string title, string? description, string buyerId,
-        bool active)
+    public async Task<Result<Product>> CreateProductAsync(CreateProductDto productDto)
     {
 
-        var productExistsBySku = await dataRepository.ExistsProductBySkuAsync(sku);
+        var productExistsBySku = await dataRepository.ExistsProductBySkuAsync(productDto.Sku);
         if (productExistsBySku)
         {
             return Result<Product>.Fail("Sku already exists");
         }
 
-        var buyerExists = await buyerService.ExistsBuyerAsync(buyerId);
+        var buyerExists = await buyerService.ExistsBuyerAsync(productDto.BuyerId);
         if (!buyerExists.Success || !buyerExists.Value)
         {
             return Result<Product>.Fail("buyerId is invalid");
@@ -41,11 +41,11 @@ public class ProductService(IDataRepository dataRepository, IBuyerService buyerS
 
         var draftProduct = new Product
         {
-            SKU = sku,
-            Title = title,
-            Description = description,
-            BuyerId = buyerId,
-            Active = active
+            SKU = productDto.Sku,
+            Title = productDto.Title,
+            Description = productDto.Description,
+            BuyerId = productDto.BuyerId,
+            Active = productDto.Active
         };
 
         var validationResult = await validator.ValidateAsync(draftProduct);
@@ -55,14 +55,13 @@ public class ProductService(IDataRepository dataRepository, IBuyerService buyerS
         }
 
 
-        var newProductSuccess = await dataRepository.InsertProductAsync(new()
-            { SKU = sku, Title = title, BuyerId = buyerId, Active = active });
+        var newProductSuccess = await dataRepository.InsertProductAsync(draftProduct);
         if (!newProductSuccess)
         {
             return Result<Product>.Fail("failed to create product");
         }
 
-        notify.Notify(buyerId, $"new product (sku: '{draftProduct.SKU})' is created");
+        notify.Notify(draftProduct.BuyerId, $"new product (sku: '{draftProduct.SKU})' is created");
         return Result<Product>.Ok(draftProduct);
     }
 
