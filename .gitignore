@@ -128,3 +128,16 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+Wmi.Api/obj
+Wmi.Api/bin
+Wmi.Api/.DS_Store
+Wmi.Api/.idea
+Wmi.Api/Wmi.Api.sln.DotSettings.user
+Wmi/src/Wmi.Api/obj
+Wmi/src/Wmi.Api/bin
+Wmi/src/Wmi.Api/.idea
+Wmi/tests/Wmi.Api.Tests/obj
+Wmi/tests/Wmi.Api.Tests/bin
+.DS_Store
+Wmi/.idea
+
