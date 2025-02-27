@@ -54,7 +54,6 @@ public class ProductService(
             return Result<Product>.Fail(string.Join(", ", validationResult.Errors.Select(x => x.ErrorMessage)));
         }
 
-
         var newProductSuccess = await dataRepository.InsertProductAsync(draftProduct);
         if (!newProductSuccess)
         {
@@ -63,6 +62,59 @@ public class ProductService(
 
         notify.Notify(draftProduct.BuyerId, $"new product (sku: '{draftProduct.SKU})' is created");
         return Result<Product>.Ok(draftProduct);
+    }
+
+    public async Task<Result<Product>> UpdateProductAsync(string sku, UpdateProductDto productDto)
+    {
+        var existingProductBySku = await dataRepository.GetProductBySkuAsync(sku);
+        if (existingProductBySku == null)
+        {
+            return Result<Product>.Fail("Sku does not exists");
+        }
+
+        var productChangedToDeactivated = false;
+        var productAssignedBuyerChanged = false;
+        var previousProductBuyerId = string.Empty;
+        
+        var draftProduct = mapper.Map<Product>(productDto);
+        draftProduct.SKU = existingProductBySku.SKU;
+
+        var validationResult = await validator.ValidateAsync(draftProduct);
+        if (!validationResult.IsValid)
+        {
+            return Result<Product>.Fail(string.Join(", ", validationResult.Errors.Select(x => x.ErrorMessage)));
+        }
+
+        if (existingProductBySku.BuyerId != draftProduct.BuyerId)
+        {
+            productAssignedBuyerChanged = true;
+            previousProductBuyerId = existingProductBySku.BuyerId;
+        }
+
+        if (existingProductBySku.Active != draftProduct.Active && !draftProduct.Active)
+        {
+            productChangedToDeactivated = true;
+        }
+
+        var updateResult = await dataRepository.UpdateProductAsync(draftProduct);
+        if (!updateResult)
+        {
+            return Result<Product>.Fail("Product updated failed");
+        }
+
+        if (productAssignedBuyerChanged)
+        {
+            NotifyProductChangedBuyer(draftProduct.SKU, previousProductBuyerId, draftProduct.BuyerId);
+        }
+
+        if (productChangedToDeactivated)
+        {
+            //Here we notify only latest buyer (if buyer was changed, here we can provide previousProductBuyerId)
+            NotifyProductDeactivated(draftProduct.SKU, draftProduct.BuyerId);
+        }
+        
+        return Result<Product>.Ok(draftProduct);
+        
     }
 
     public async Task<Result<Product>> ChangeActiveStatusAsync(string sku, bool active)
@@ -79,7 +131,7 @@ public class ProductService(
             var updateProductResult = await dataRepository.UpdateProductAsync(productBySku);
             if (updateProductResult && !productBySku.Active)
             {
-                notify.Notify(productBySku.BuyerId, $"product (sku: '{productBySku.SKU})' has been deactivated");
+                NotifyProductDeactivated(productBySku.SKU, productBySku.BuyerId);
             }
         }
 
@@ -108,11 +160,21 @@ public class ProductService(
             var updateProductResult = await dataRepository.UpdateProductAsync(productBySku);
             if (updateProductResult)
             {
-                notify.Notify(previousBuyerId, $"product (sku: '{productBySku.SKU}') has been unassigned from you");
-                notify.Notify(productBySku.BuyerId, $"product (sku: '{productBySku.SKU}') has been assigned to you");
+                NotifyProductChangedBuyer(productBySku.SKU, previousBuyerId, newBuyerId);
             }
         }
 
         return Result<Product>.Ok(productBySku);
+    }
+
+    private void NotifyProductDeactivated(string sku, string buyerId)
+    {
+        notify.Notify(buyerId, $"product (sku: '{sku})' has been deactivated");
+    }
+
+    private void NotifyProductChangedBuyer(string sku, string previousBuyerId, string newBuyerId)
+    {
+        notify.Notify(previousBuyerId, $"product (sku: '{sku}') has been unassigned from you");
+        notify.Notify(newBuyerId, $"product (sku: '{sku}') has been assigned to you");
     }
 }

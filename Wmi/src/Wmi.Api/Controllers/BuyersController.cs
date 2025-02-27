@@ -21,12 +21,12 @@ public class BuyersController(IBuyerService buyerService) : ControllerBase
 
         if (newBuyerResult.Success)
         {
-            return Created($"api/buyers/{newBuyerResult.Value!.Id}", newBuyerResult.Value);
+            return Created($"api/buyers/{newBuyerResult.Value!.Id}", newBuyerResult);
         }
         return BadRequest(newBuyerResult);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:length(32)}")]
     [ProducesResponseType(typeof(Product), 200)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> GetBuyerAsync(string id)
@@ -38,7 +38,7 @@ public class BuyersController(IBuyerService buyerService) : ControllerBase
         return Ok();
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:length(32)}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> UpdateProduct(int id, [FromBody] Product updatedProduct)
@@ -50,7 +50,7 @@ public class BuyersController(IBuyerService buyerService) : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:length(32)}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeleteProduct(int id)
