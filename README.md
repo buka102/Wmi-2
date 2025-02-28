@@ -52,6 +52,11 @@ docker-compose down -v
 
 
 
+## Unit Testing
+Unit Tests are added in project `Wmi/tests/Wmi.Api.Tests`
+
+![Successful Run of Test Cases](images/test-cases.png)
+
 ## API Testing
 
 Use the included postman_collection.json to test API endpoints with Postman
