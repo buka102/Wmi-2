@@ -10,11 +10,10 @@ using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 // [Authorize]
 public class ProductsController(IProductService productService) : ControllerBase
 {
-
     [HttpPost]
-    [ProducesResponseType(typeof(Result<Product>), 201)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(403)]
+    [ProducesResponseType(typeof(Result<Product>), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> CreateProductAsync([FromBody] CreateProductDto createProductDto)
     {
         var newProductResult = await productService.CreateProductAsync(createProductDto);
@@ -28,9 +27,9 @@ public class ProductsController(IProductService productService) : ControllerBase
     }
 
     [HttpPut("{sku:length(1,50)}")]
-    [ProducesResponseType(typeof(Result<Product>), 201)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(403)]
+    [ProducesResponseType(typeof(Result<Product>), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> UpdateProductAsync([FromRoute]string sku, [FromBody] UpdateProductDto updateProductDto)
     {
         var updatedProductResult = await productService.UpdateProductAsync(sku, updateProductDto);
@@ -44,9 +43,9 @@ public class ProductsController(IProductService productService) : ControllerBase
     }
 
     [HttpPatch("{sku:length(1,50)}/active")]
-    [ProducesResponseType(typeof(Product), 200)]
-    [ProducesResponseType(204)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateProductActiveStatus([FromRoute]string sku, [FromBody] bool active)
     {
         var updatedProductResult = await productService.ChangeActiveStatusAsync(sku, active);
@@ -59,10 +58,10 @@ public class ProductsController(IProductService productService) : ControllerBase
     }
 
     [HttpPatch("{sku:length(1,50)}/buyer")]
-    [ProducesResponseType(typeof(Product), 200)]
-    [ProducesResponseType(204)]
-    [ProducesResponseType(404)]
-    public async Task<IActionResult> UpdateProductActiveStatus([FromRoute]string sku, [FromBody] string newBuyerId)
+    [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateProductBuyer([FromRoute]string sku, [FromBody] string newBuyerId)
     {
         var updatedProductResult = await productService.ChangeBuyerAsync(sku, newBuyerId);
 
@@ -73,8 +72,8 @@ public class ProductsController(IProductService productService) : ControllerBase
         return BadRequest(updatedProductResult);
     }
 
-    [HttpGet("")]
-    [ProducesResponseType(typeof(Result<List<Product>>), 200)]
+    [HttpGet]
+    [ProducesResponseType(typeof(Result<List<Product>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllProducts([FromQuery] bool? expand, [FromQuery] string? titleContains,
         [FromQuery] string? titleStartsWith, [FromQuery] int? page, [FromQuery] int? pageSize)
     {

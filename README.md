@@ -14,12 +14,29 @@ This project was created as an exercise for an interview. While some features in
 
 **Clone the repository** (if applicable):
    ```sh
-   git clone <repository-url>
-   cd wmi-2
+   git clone https://github.com/buka102/Wmi-2
+   cd Wmi-2
+   cd wmi
    ```
 
+**Run**
+* with Docker: Run Api and Db (Postman collection will work as is)
+```
+    docker-compose up
+```
+Web Api runs on port 8081
+
+Or
+
+* with .NET CLI (if using Postman - need to change port value for server_host variable)
+``` 
+    cd src
+    dotnet build
+    dotnet run --project Wmi.Api/Wmi.Api.csproj
+```
 **Provision DB**
 ```
+cd ..
 cd db
 docker-compose up
 ```
@@ -29,19 +46,7 @@ To remove external volume, and reconstruct DB:
 docker-compose down -v 
 ```
 
-**Run**
-* with .NET CLI (if using Postman - need to change port value for server_host variable)
-``` 
-    dotnet build
-    dotnet run --project Wmi.Api/Wmi.Api.csproj
-```
-Or 
-* with Docker: Run Api and Db (Postman collection will work as is)
-```
-    docker-compose up
-```
 
-Web Api runs on port 8081
 
 **API Testing**
 
@@ -78,5 +83,8 @@ While these features are overkill for a small project, they showcase best practi
 * Expand unit and integration test coverage.
 * Add distributed tracing (e.g., OpenTelemetry) for better debugging.
 * Implement structured logging with correlation IDs.
+
+**Performance**
+* Imlement caching (Redis)
 
 

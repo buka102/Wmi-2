@@ -9,69 +9,64 @@ using Wmi.Api.Services;
 // [Authorize]
 public class BuyersController(IBuyerService buyerService) : ControllerBase
 {
-
-
     [HttpPost]
-    [ProducesResponseType(typeof(Result<Buyer>), 201)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(403)]
+    [ProducesResponseType(typeof(Result<Buyer>), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> CreateBuyerAsync([FromBody] CreateBuyerDto buyerDto)
     {
         var newBuyerResult = await buyerService.CreateBuyerAsync(buyerDto);
 
         if (newBuyerResult.Success)
         {
-            return Created($"api/buyers/{newBuyerResult.Value!.Id}", newBuyerResult);
+            return Created($"api/v2/Buyers/{newBuyerResult.Value!.Id}", newBuyerResult.Value);
         }
-        return BadRequest(newBuyerResult);
-    }
 
-    [HttpGet("{id:length(32)}")]
-    [ProducesResponseType(typeof(Product), 200)]
-    [ProducesResponseType(404)]
-    public async Task<IActionResult> GetBuyerAsync(string id)
-    {
-        /*
-    var product = await _productService.GetProductByIdAsync(id);
-    return product is not null ? Ok(product) : NotFound();
-    */
-        return Ok();
+        return NotFound(newBuyerResult);
     }
 
     [HttpPut("{id:length(32)}")]
-    [ProducesResponseType(204)]
-    [ProducesResponseType(404)]
-    public async Task<IActionResult> UpdateProduct(int id, [FromBody] Product updatedProduct)
+    [ProducesResponseType(typeof(Result<Buyer>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> UpdateBuyerAsync([FromRoute] string id, [FromBody] UpdateBuyerDto updateBuyerDto)
     {
-        /*
-    var updated = await _productService.UpdateProductAsync(id, updatedProduct);
-    return updated ? NoContent() : NotFound();
-    */
-        return NoContent();
+        var updatedBuyerResult = await buyerService.UpdateBuyerAsync(id, updateBuyerDto);
+
+        if (updatedBuyerResult.Success)
+        {
+            return Ok(updatedBuyerResult);
+        }
+
+        return NotFound(updatedBuyerResult);
     }
 
     [HttpDelete("{id:length(32)}")]
-    [ProducesResponseType(204)]
-    [ProducesResponseType(404)]
-    public async Task<IActionResult> DeleteProduct(int id)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteBuyerAsync([FromRoute] string id)
     {
-        /*
-    var deleted = await _productService.DeleteProductAsync(id);
-    return deleted ? NoContent() : NotFound();
-    */
-        return NoContent();
+        var deleteResult = await buyerService.DeleteBuyerAsync(id);
+
+        if (deleteResult.Success)
+        {
+            return NoContent();
+        }
+
+        return NotFound(deleteResult);
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(Result<List<Buyer>>), 200)]
+    [ProducesResponseType(typeof(Result<List<Buyer>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllBuyers([FromQuery] int? page, [FromQuery] int? pageSize)
     {
-        var buyerListResult = await buyerService.GetBuyersAsync(page:page?? 1, pageSize:pageSize ?? 100);
+        var buyerListResult = await buyerService.GetBuyersAsync(page: page ?? 1, pageSize: pageSize ?? 100);
 
         if (buyerListResult.Success)
         {
             return Ok(buyerListResult);
         }
-        return BadRequest(buyerListResult);
+
+        return NotFound(buyerListResult);
     }
 }
