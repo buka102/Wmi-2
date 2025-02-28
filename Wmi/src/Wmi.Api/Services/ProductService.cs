@@ -7,6 +7,7 @@ using Wmi.Api.Models.Dto;
 namespace Wmi.Api.Services;
 
 public class ProductService(
+    ILogger<ProductService> logger,
     IDataRepository dataRepository,
     IBuyerService buyerService,
     IValidator<Product> validator,
@@ -16,7 +17,7 @@ public class ProductService(
     public async Task<Result<List<Product>>> GetProductsAsync(string? titleContains = null,
         string? titleStartsWith = null, int page = 1, int pageSize = 10, bool includeBuyer = false)
     {
-
+        logger.LogDebug("GetProducts called");
         IEnumerable<Product> products;
         if (includeBuyer)
         {
@@ -32,9 +33,11 @@ public class ProductService(
 
     public async Task<Result<Product>> CreateProductAsync(CreateProductDto productDto)
     {
+        logger.LogDebug("CreateProductAsync called");
         var productExistsBySku = await dataRepository.ExistsProductBySkuAsync(productDto.Sku);
         if (productExistsBySku)
         {
+            logger.LogDebug("sku already exists");
             return Result<Product>.Fail("Sku already exists");
         }
 
@@ -50,25 +53,29 @@ public class ProductService(
         var validationResult = await validator.ValidateAsync(draftProduct);
         if (!validationResult.IsValid)
         {
+            logger.LogDebug("Validation failed");
             return Result<Product>.Fail(string.Join(", ", validationResult.Errors.Select(x => x.ErrorMessage)));
         }
 
         var newProductSuccess = await dataRepository.InsertProductAsync(draftProduct);
         if (!newProductSuccess)
         {
+            logger.LogError("Insert product failed");
             return Result<Product>.Fail("failed to create product");
         }
-
+        logger.LogDebug("Create product success");
         notify.Notify(draftProduct.BuyerId, $"new product (sku: '{draftProduct.Sku})' is created");
         return Result<Product>.Ok(draftProduct);
     }
 
     public async Task<Result<Product>> UpdateProductAsync(string sku, UpdateProductDto productDto)
     {
+        logger.LogDebug("UpdateProductAsync called");
         var existingProductBySku = await dataRepository.GetProductBySkuAsync(sku);
         if (existingProductBySku == null)
         {
-            return Result<Product>.Fail("Sku does not exists");
+            logger.LogDebug("sku does nt exist");
+            return Result<Product>.Fail("Sku does not exist");
         }
 
         var productChangedToDeactivated = false;
@@ -81,6 +88,7 @@ public class ProductService(
         var validationResult = await validator.ValidateAsync(draftProduct);
         if (!validationResult.IsValid)
         {
+            logger.LogDebug("Validation failed");
             return Result<Product>.Fail(string.Join(", ", validationResult.Errors.Select(x => x.ErrorMessage)));
         }
 
@@ -98,6 +106,7 @@ public class ProductService(
         var updateResult = await dataRepository.UpdateProductAsync(draftProduct);
         if (!updateResult)
         {
+            logger.LogDebug("Update product failed");
             return Result<Product>.Fail("Product updated failed");
         }
 
@@ -112,15 +121,18 @@ public class ProductService(
             NotifyProductDeactivated(draftProduct.Sku, draftProduct.BuyerId);
         }
         
+        logger.LogDebug("Update product success");
         return Result<Product>.Ok(draftProduct);
         
     }
 
     public async Task<Result<Product>> ChangeActiveStatusAsync(string sku, bool active)
     {
+        logger.LogDebug("ChangeActiveStatusAsync called");
         var productBySku = await dataRepository.GetProductBySkuAsync(sku);
         if (productBySku == null)
         {
+            logger.LogDebug("sku is out of range");
             return Result<Product>.Fail("Sku is out of range");
         }
 
@@ -133,22 +145,24 @@ public class ProductService(
                 NotifyProductDeactivated(productBySku.Sku, productBySku.BuyerId);
             }
         }
-
+        logger.LogDebug("Change active status completed");
         return Result<Product>.Ok(productBySku);
     }
 
     public async Task<Result<Product>> ChangeBuyerAsync(string sku, string newBuyerId)
     {
-
+        logger.LogDebug("ChangeBuyerAsync called");
         var buyerExists = await buyerService.ExistsBuyerAsync(newBuyerId);
         if (!buyerExists.Success || !buyerExists.Value)
         {
+            logger.LogDebug("BuyerId is invalid");
             return Result<Product>.Fail("buyerId is invalid");
         }
 
         var productBySku = await dataRepository.GetProductBySkuAsync(sku);
         if (productBySku == null)
         {
+            logger.LogDebug("sku is out of range");
             return Result<Product>.Fail("Sku is out of range");
         }
 
@@ -162,17 +176,19 @@ public class ProductService(
                 NotifyProductChangedBuyer(productBySku.Sku, previousBuyerId, newBuyerId);
             }
         }
-
+        logger.LogDebug("Change buyer status completed");
         return Result<Product>.Ok(productBySku);
     }
 
     private void NotifyProductDeactivated(string sku, string buyerId)
     {
+        logger.LogDebug("NotifyProductDeactivated called");
         notify.Notify(buyerId, $"product (sku: '{sku})' has been deactivated");
     }
 
     private void NotifyProductChangedBuyer(string sku, string previousBuyerId, string newBuyerId)
     {
+        logger.LogDebug("NotifyProductChangedBuyer called");
         notify.Notify(previousBuyerId, $"product (sku: '{sku}') has been unassigned from you");
         notify.Notify(newBuyerId, $"product (sku: '{sku}') has been assigned to you");
     }

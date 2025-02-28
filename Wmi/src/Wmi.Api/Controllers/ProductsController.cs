@@ -1,12 +1,10 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Wmi.Api.Models;
 using Wmi.Api.Models.Dto;
 using Wmi.Api.Services;
-using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 [ApiController]
-[Route("api/v2/[controller]")]
+[Route("api/[controller]")]
 // [Authorize]
 public class ProductsController(IProductService productService) : ControllerBase
 {
@@ -20,7 +18,7 @@ public class ProductsController(IProductService productService) : ControllerBase
 
         if (newProductResult.Success)
         {
-            return Created($"api/v2/Products/{newProductResult.Value!.Sku}", newProductResult.Value);
+            return Created($"api/Products/{newProductResult.Value!.Sku}", newProductResult);
         }
 
         return BadRequest(newProductResult);

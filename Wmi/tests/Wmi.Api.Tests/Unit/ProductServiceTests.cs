@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using Wmi.Api.Services;
 using Wmi.Api.Models;
 using Wmi.Api.Models.Dto;
@@ -27,8 +28,10 @@ public class ProductServiceTests
         _validatorMock = new Mock<IValidator<Product>>();
         _notifyMock = new Mock<INotify>();
         _mapperMock = new Mock<IMapper>();
-
+        var loggerMock = new Mock<ILogger<ProductService>>();
+        
         _productService = new ProductService(
+            loggerMock.Object,
             _dataRepositoryMock.Object, 
             _buyerServiceMock.Object, 
             _validatorMock.Object, 
@@ -174,7 +177,7 @@ public class ProductServiceTests
         var result = await _productService.UpdateProductAsync("Sku123", updateProductDto);
 
         Assert.False(result.Success);
-        Assert.Equal("Sku does not exists", result.Error);
+        Assert.Equal("Sku does not exist", result.Error);
     }
 
     [Fact]

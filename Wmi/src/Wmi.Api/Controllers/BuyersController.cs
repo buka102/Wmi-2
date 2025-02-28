@@ -19,7 +19,7 @@ public class BuyersController(IBuyerService buyerService) : ControllerBase
 
         if (newBuyerResult.Success)
         {
-            return Created($"api/v2/Buyers/{newBuyerResult.Value!.Id}", newBuyerResult.Value);
+            return Created($"api/v2/Buyers/{newBuyerResult.Value!.Id}", newBuyerResult);
         }
 
         return NotFound(newBuyerResult);
