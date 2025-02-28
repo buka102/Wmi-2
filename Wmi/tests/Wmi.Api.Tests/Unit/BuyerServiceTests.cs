@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using AutoMapper;
 using Moq;
-using Xunit;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.Extensions.Logging;
 using Wmi.Api.Data;
 using Wmi.Api.Services; // Adjust namespace as needed
 using Wmi.Api.Models;
@@ -24,7 +21,8 @@ public class BuyerServiceTests
         _dataRepositoryMock = new Mock<IDataRepository>();
         _validatorMock = new Mock<IValidator<Buyer>>();
         _mapperMock = new Mock<IMapper>();
-        _buyerService = new BuyerService(_dataRepositoryMock.Object, _validatorMock.Object, _mapperMock.Object);
+        var loggerMock = new Mock<ILogger<BuyerService>>();
+        _buyerService = new BuyerService(loggerMock.Object, _dataRepositoryMock.Object, _validatorMock.Object, _mapperMock.Object);
     }
 
     [Fact]

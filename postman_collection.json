@@ -106,7 +106,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"sku\":\"s1236\",\n    \"title\":\"title of 123\",\n    \"description\":\"desc1\",\n    \"buyerId\":\"{{latest_buyer_id}}\",\n    \"active\":true\n}",
+							"raw": "{\n    \"sku\":\"s1235\",\n    \"title\":\"title of 124\",\n    \"buyerId\":\"{{latest_buyer_id}}\",\n    \"active\":true\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -114,13 +114,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{server_host}}/api/v2/Products",
+							"raw": "{{server_host}}/api/Products",
 							"host": [
 								"{{server_host}}"
 							],
 							"path": [
 								"api",
-								"v2",
 								"Products"
 							]
 						}
@@ -133,13 +132,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{server_host}}/api/v2/Products",
+							"raw": "{{server_host}}/api/Products",
 							"host": [
 								"{{server_host}}"
 							],
 							"path": [
 								"api",
-								"v2",
 								"Products"
 							]
 						}
@@ -152,13 +150,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{server_host}}/api/v2/Products?expand=true",
+							"raw": "{{server_host}}/api/Products?expand=true",
 							"host": [
 								"{{server_host}}"
 							],
 							"path": [
 								"api",
-								"v2",
 								"Products"
 							],
 							"query": [
@@ -177,13 +174,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{server_host}}/api/v2/Products?titleContains=123",
+							"raw": "{{server_host}}/api/Products?titleContains=123",
 							"host": [
 								"{{server_host}}"
 							],
 							"path": [
 								"api",
-								"v2",
 								"Products"
 							],
 							"query": [
@@ -211,13 +207,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{server_host}}/api/v2/Products/{{latest_sku}}/active",
+							"raw": "{{server_host}}/api/Products/{{latest_sku}}/active",
 							"host": [
 								"{{server_host}}"
 							],
 							"path": [
 								"api",
-								"v2",
 								"Products",
 								"{{latest_sku}}",
 								"active"
@@ -233,7 +228,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "\"VDJMlQwq90WK97NhkM0iFg\"",
+							"raw": "\"bb067fd1f3da426daca3e26b26063aa8\"",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -241,13 +236,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{server_host}}/api/v2/Products/{{latest_sku}}/buyer",
+							"raw": "{{server_host}}/api/Products/{{latest_sku}}/buyer",
 							"host": [
 								"{{server_host}}"
 							],
 							"path": [
 								"api",
-								"v2",
 								"Products",
 								"{{latest_sku}}",
 								"buyer"
@@ -263,7 +257,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"title\":\"updated title of 123\",\n    \"description\":\"desc1\",\n    \"buyerId\":\"1NbokJPF3UKAfYZqoWo5eg\",\n    \"active\":true\n}",
+							"raw": "{\n    \"title\":\"updated title for this produvt\",\n    \"description\":\"descption is here and new\",\n    \"buyerId\":\"f0ed17c8ede147d3acb7804616bded88\",\n    \"active\":true\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -271,13 +265,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{server_host}}/api/v2/Products/{{latest_sku}}",
+							"raw": "{{server_host}}/api/Products/{{latest_sku}}",
 							"host": [
 								"{{server_host}}"
 							],
 							"path": [
 								"api",
-								"v2",
 								"Products",
 								"{{latest_sku}}"
 							]

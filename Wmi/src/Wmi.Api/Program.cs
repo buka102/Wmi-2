@@ -6,9 +6,20 @@ using Wmi.Api.Data;
 using Wmi.Api.Middleware;
 using Wmi.Api.Models;
 using Wmi.Api.Services;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (builder.Environment.IsDevelopment())
+{
+    // Configure Serilog
+    Log.Logger = new LoggerConfiguration()
+        .WriteTo.Console()
+        .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+        .CreateLogger();
+}
+
+builder.Host.UseSerilog();
 
 // Configure JSON options globally
 builder.Services.Configure<JsonOptions>(options =>
@@ -48,6 +59,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseSerilogRequestLogging();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.MapControllers();
 app.Run();
